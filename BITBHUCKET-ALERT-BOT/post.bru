@@ -1,0 +1,18 @@
+meta {
+  name: post
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://[::1]:3080/post
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    title:"제목",
+    content:"내용이다"
+  }
+}

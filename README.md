@@ -43,25 +43,41 @@ cp .env.example .env
 
 `.env` 파일을 편집하여 필요한 설정을 입력하세요:
 
-```
+```env
 PORT=3000
 SLACK_WEBHOOK_URL=https://hooks.slack.com/services/your/webhook/url
 ```
 
-### 개발 환경에서 실행
+## Project setup
 
 ```bash
-npm run dev
+$ pnpm install
 ```
 
-### 빌드 및 프로덕션 실행
+## Compile and run the project
 
 ```bash
-# 빌드
-npm run build
+# development
+$ pnpm run start
 
-# 실행
-npm start
+# watch mode
+$ pnpm run start:dev
+
+# production mode
+$ pnpm run start:prod
+```
+
+## Run tests
+
+```bash
+# unit tests
+$ pnpm run test
+
+# e2e tests
+$ pnpm run test:e2e
+
+# test coverage
+$ pnpm run test:cov
 ```
 
 ## Bitbucket Webhook 설정
@@ -93,6 +109,7 @@ npm start
 MIT
 
 ## 🔥 주요 기능
+
 - Bitbucket PR 생성, 리뷰, 코멘트 등의 이벤트 감지
 - 감지된 이벤트를 특정 메신저(Webhook URL)에 맞는 포맷으로 변환하여 전송
 - 각 채팅방별로 다른 Webhook URL 설정 가능
@@ -100,24 +117,29 @@ MIT
 - 보안 설정 (API Key 또는 인증 방식 추가 예정)
 
 ## 지원 메신저
+
 - Slack
 - 기타 웹훅 지원 메신저
 
 ## 🚀 기술 스택
+
 - **Node.js** + **Express**
 - **Bitbucket Webhook**
 - **dotenv** (환경 변수 관리)
 - **Axios** (HTTP 요청)
 
 ## 📌 API 경로 (예시)
-| HTTP Method | Endpoint                  | 설명 |
-|------------|---------------------------|------|
-| POST       | `/webhook/bitbucket`       | Bitbucket Webhook 이벤트 수신 |
-| GET        | `/config`                  | 현재 설정된 메신저 Webhook 조회 |
-| POST       | `/config`                   | 새로운 Webhook 설정 추가 |
+
+| HTTP Method | Endpoint             | 설명                            |
+| ----------- | -------------------- | ------------------------------- |
+| POST        | `/webhook/bitbucket` | Bitbucket Webhook 이벤트 수신   |
+| GET         | `/config`            | 현재 설정된 메신저 Webhook 조회 |
+| POST        | `/config`            | 새로운 Webhook 설정 추가        |
 
 ## 📦 설치 및 실행
+
 ```sh
 git clone https://bitbucket.org/your-repo/bitbucket-alert-bot.git
 cd bitbucket-alert-bot
 npm install
+```
