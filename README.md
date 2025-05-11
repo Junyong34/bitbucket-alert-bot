@@ -45,7 +45,7 @@ cp .env.example .env
 
 ```env
 PORT=3000
-SLACK_WEBHOOK_URL=https://hooks.slack.com/services/your/webhook/url
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR_WEBHOOK_URL
 ```
 
 ## Project setup
@@ -82,14 +82,38 @@ $ pnpm run test:cov
 
 ## Bitbucket Webhook 설정
 
-1. Bitbucket 저장소 설정에서 Webhooks 메뉴로 이동
-2. "Add webhook" 버튼 클릭
+이 프로젝트는 Bitbucket 웹훅을 처리하여 Slack으로 알림을 보내는 기능을 제공합니다.
+
+### 환경 변수 설정
+
+`.env` 파일을 생성하고 다음과 같이 설정합니다:
+
+```
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR_WEBHOOK_URL
+```
+
+### Bitbucket 웹훅 엔드포인트
+
+다음 엔드포인트를 Bitbucket 웹훅 설정에 등록하세요:
+
+- 범용 웹훅 (모든 이벤트): `POST /bitbucket-hook/webhook`
+- PR 생성: `POST /bitbucket-hook/pr/created`
+- PR 댓글: `POST /bitbucket-hook/pr/comment`
+- PR 승인: `POST /bitbucket-hook/pr/approved`
+- PR 병합: `POST /bitbucket-hook/pr/merged`
+- PR 거부: `POST /bitbucket-hook/pr/declined`
+- PR 삭제: `POST /bitbucket-hook/pr/deleted`
+
+### Bitbucket 웹훅 설정 방법
+
+1. Bitbucket 저장소에서 Settings > Webhooks로 이동
+2. Add webhook 클릭
 3. 다음 정보 입력:
-   - Title: "Alert Bot"
-   - URL: `https://your-server.com/webhook/bitbucket`
+   - Title: 원하는 제목 (예: Slack Notification)
+   - URL: 서버 URL + 엔드포인트 (예: https://your-server.com/bitbucket-hook/webhook)
    - Status: Active
-   - Triggers: 원하는 이벤트 선택 (Repository push, Pull request created 등)
-4. "Save" 버튼 클릭
+   - Events: 필요한 이벤트 선택 (Pull Request, PR Comment 등)
+4. Save 클릭
 
 ## 메신저 연동
 
@@ -120,21 +144,6 @@ MIT
 
 - Slack
 - 기타 웹훅 지원 메신저
-
-## 🚀 기술 스택
-
-- **Node.js** + **Express**
-- **Bitbucket Webhook**
-- **dotenv** (환경 변수 관리)
-- **Axios** (HTTP 요청)
-
-## 📌 API 경로 (예시)
-
-| HTTP Method | Endpoint             | 설명                            |
-| ----------- | -------------------- | ------------------------------- |
-| POST        | `/webhook/bitbucket` | Bitbucket Webhook 이벤트 수신   |
-| GET         | `/config`            | 현재 설정된 메신저 Webhook 조회 |
-| POST        | `/config`            | 새로운 Webhook 설정 추가        |
 
 ## 📦 설치 및 실행
 

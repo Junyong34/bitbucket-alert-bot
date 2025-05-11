@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PostModule } from './post/post.module';
 import { BitbucketHookModule } from './bitbucket-hook/bitbucket-hook.module';
+import { SlackWebhookModule } from './slack-webhook/slack-webhook.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { BitbucketHookModule } from './bitbucket-hook/bitbucket-hook.module';
     }),
     PostModule,
     BitbucketHookModule,
+    SlackWebhookModule,
   ],
   controllers: [AppController],
   providers: [AppService],
