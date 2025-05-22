@@ -152,3 +152,28 @@ git clone https://bitbucket.org/your-repo/bitbucket-alert-bot.git
 cd bitbucket-alert-bot
 npm install
 ```
+
+## 알림 예시
+
+Bitbucket Alert Bot이 전송하는 알림 메시지 예시는 다음과 같습니다.
+
+### 1. 코드 리뷰 알림
+
+![코드 리뷰 알림 예시](./src/image/code-review.png)
+
+- PR 생성 또는 리뷰 요청 시 전송되는 알림 예시입니다.
+- PR 제목, 작성자, 리뷰어, 브랜치 정보 등이 포함됩니다.
+
+### 2. PR 병합 알림
+
+![PR 병합 알림 예시](./src/image/pr-merge.png)
+
+- PR이 성공적으로 병합되었을 때 전송되는 알림 예시입니다.
+- 병합자, 병합된 브랜치, PR 정보가 포함됩니다.
+
+### 3. PR 운영 배포 알림
+
+![PR 운영 배포 알림 예시](./src/image/pr-prd.png)
+
+- PR이 운영 환경에 배포되었을 때 전송되는 알림 예시입니다.
+- 배포 브랜치, 배포자, 관련 PR 정보가 포함됩니다.
