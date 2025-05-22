@@ -128,9 +128,6 @@ SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR_WEBHOOK_URL
 2. "Webhooks" 항목에서 새 웹훅 생성
 3. 웹훅 URL을 복사하여 `.env` 파일의 `DISCORD_WEBHOOK_URL`에 추가
 
-## 라이센스
-
-MIT
 
 ## 🔥 주요 기능
 
@@ -177,3 +174,9 @@ Bitbucket Alert Bot이 전송하는 알림 메시지 예시는 다음과 같습�
 
 - PR이 운영 환경에 배포되었을 때 전송되는 알림 예시입니다.
 - 배포 브랜치, 배포자, 관련 PR 정보가 포함됩니다.
+
+---
+
+## 라이센스
+
+MIT
