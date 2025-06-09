@@ -78,19 +78,71 @@ export class BitbucketHookService {
     this.logger.debug(`PR 승인 이벤트 처리: ${payload.pullRequest.id}`);
 
     const { pullRequest, repository, participant } = payload;
-    const message = new SlackMessageBuilder()
-      .setText(
-        `${participant.user.displayName}님이 PR을 승인했습니다: ${pullRequest.title}`,
-      )
-      .addHeader('✅ Pull Request 승인')
-      .addSection(`*${pullRequest.title}*`)
-      .addContext(`Repository: ${repository.project.key}/${repository.name}`)
-      .addContext(
-        `Branch: ${pullRequest.fromRef.displayId} → ${pullRequest.toRef.displayId}`,
-      )
-      .addButton('PR 보기', pullRequest.url)
-      .build();
+    const prAuthor = pullRequest.author.user.displayName;
+    const prUserId = pullRequest.author.user.name;
+    const prEmail = pullRequest.author.user.emailAddress;
+    const prID = pullRequest.id;
+    const prTitle = pullRequest.title;
+    const prDescription = pullRequest.description;
+    const prFromBr = pullRequest.fromRef.displayId;
+    const prToBr = pullRequest.toRef.displayId;
+    const prReviewers = (pullRequest.reviewers || [])
+      .map((r) => r.user.displayName)
+      .join(', ');
+    const prUrl = pullRequest.url;
+    const approvedBy = participant.user.displayName;
+    const approvedById = participant.user.name;
+    const approvedByEmail = participant.user.emailAddress;
+    const isPrd = prToBr === 'master';
+    const isQa = prToBr === 'release/release';
 
+    const message = {
+      text: `✅ PR이 승인되었습니다: ${prTitle}`,
+      attachments: [
+        {
+          mrkdwn_in: ['text'],
+          color: '#36a64f',
+          title: `Pull request <${prUrl}|#${prID}> | (APPROVED)`,
+          pretext: `: ${prUrl} `,
+          author_name: `by ${prUserId} / ${prAuthor}`,
+          author_email: `${prEmail}`,
+          author_icon:
+            'https://cdn1.iconfinder.com/data/icons/logos-1/24/developer-community-github-1024.png',
+          fields: [
+            {
+              value: `*승인자:* <@${approvedById}> ${approvedBy}`,
+              short: false,
+            },
+            {
+              value: `*브랜치:* \`${prFromBr}\`  →  \`${prToBr}\``,
+              short: false,
+            },
+            {
+              value: `*제목:* ${prTitle}`,
+              short: false,
+            },
+            {
+              title: 'Description',
+              value: prDescription || '설명 없음',
+              short: false,
+            },
+            {
+              title: 'Reviewers',
+              value: prReviewers ? prReviewers : '없음',
+              short: false,
+            },
+          ],
+          thumb_url:
+            'https://cdn.icon-icons.com/icons2/2108/PNG/512/bitbucket_icon_130979.png',
+          footer: 'bitbucket',
+          footer_icon:
+            'https://cdn.icon-icons.com/icons2/2108/PNG/512/bitbucket_icon_130979.png',
+          ts: Math.floor(Date.now() / 1000),
+        },
+      ],
+    };
+
+    // attachments 기반 메시지는 SlackMessageBuilder로 지원하지 않으므로, 직접 전송
     return this.slackWebhookService.sendMessage(message);
   }
 
