@@ -25,22 +25,96 @@ export class BitbucketHookService {
     this.logger.debug(`PR 생성 이벤트 처리: ${payload.pullRequest.id}`);
 
     const { pullRequest, repository, actor } = payload;
-    const message = new SlackMessageBuilder()
-      .setText(
-        `${actor.displayName}님이 PR을 생성했습니다: ${pullRequest.title}`,
-      )
-      .addHeader('🔄 Pull Request 생성')
-      .addSection(
-        `*${pullRequest.title}*\n${pullRequest.description || '설명 없음'}`,
-      )
-      .addContext(`Repository: ${repository.project.key}/${repository.name}`)
-      .addContext(
-        `Branch: ${pullRequest.fromRef.displayId} → ${pullRequest.toRef.displayId}`,
-      )
-      .addButton('PR 보기', pullRequest.url)
-      .build();
+    const { pullRequest, repository, actor } = payload;
 
-    return this.slackWebhookService.sendMessage(message);
+    // PR 정보 추출
+    const prAuthor = actor.displayName;
+    const prUserId = actor.name;
+    const prEmail = actor.emailAddress;
+    const prID = pullRequest.id;
+    const prTitle = pullRequest.title;
+    const prDescription = pullRequest.description;
+    const prFromBr = pullRequest.fromRef.displayId;
+    const prToBr = pullRequest.toRef.displayId;
+    const prReviewers = pullRequest.reviewers;
+    const repoName = pullRequest.toRef.repository.name;
+    // console.log('⭐️ payload.pullRequest.toRef.repository =>', payload.pullRequest.toRef.repository)
+    const reviewerNameList = prReviewers?.map((d) => {
+      return `<@${d.user.name}>`;
+    });
+    const prUrl = pullRequest.links.self[0].href;
+
+    // prd 인경우 강조 표시 값 ture/false
+    const isPrd = prToBr === 'master';
+    const isQa = prToBr === 'release/release';
+
+    // 리뷰어가 없으면 패스
+    if (prReviewers?.length === 0) {
+      return new Promise<boolean>((resolve) => {
+        resolve(false);
+      });
+    }
+    // title WIP 인경우 패스
+    if (prTitle.toUpperCase().includes('WIP')) {
+      return new Promise<boolean>((resolve) => {
+        resolve(false);
+      });
+    }
+    const base = 'https://homeplus.atlassian.net/browse';
+    const re = /(\b[A-Z][A-Z0-9_]+-[1-9][0-9]*)/g; // https://stackoverflow.com/a/73914895
+
+    const slackMessage = {
+      text: `🚀 새로운 PR이 Open 되었습니다.${isPrd ? '[PRD]' : ''} ${isQa ? '[QA]' : ''}`,
+      attachments: [
+        {
+          mrkdwn_in: ['text'],
+          color: '#4f5aec',
+          title: `Pull request <${prUrl}|#${prID}>  | (OPEN) ${isPrd ? '🚨' : ''}`,
+          // "title_link": "https://api.slack.com/",
+          pretext: `URL: ${prUrl} (${repoName} ☑️)`,
+          author_name: `by ${prUserId} / ${prAuthor}  `,
+          author_email: `${prEmail}`,
+          // "author_link": "https://bitbucket.homeplusnet.co.kr/",
+          author_icon:
+            'https://cdn1.iconfinder.com/data/icons/logos-1/24/developer-community-github-1024.png',
+          fields: [
+            {
+              value: `\`${prFromBr}\`  →  \`${prToBr}\``,
+              type: 'mrkdwn',
+              short: false,
+            },
+            {
+              value: ``,
+              short: false,
+            },
+            {
+              value: `${prTitle.replaceAll(re, `<${base}/$1|$1>`)} `,
+              short: false,
+            },
+            {
+              title: 'Description',
+              value: `${prDescription || ''}`,
+              short: false,
+            },
+            {
+              title: 'Reviewers',
+              // "value": `<!here> ➡  <@${prUserId}> ${reviewerNameList.join(',')}`,
+              value: `<@${prUserId}> 👋  ${reviewerNameList?.join(',')}`,
+              type: 'code',
+              short: false,
+            },
+          ],
+          thumb_url:
+            'https://cdn.icon-icons.com/icons2/2108/PNG/512/bitbucket_icon_130979.png',
+          footer: 'bitbucket',
+          footer_icon:
+            'https://cdn.icon-icons.com/icons2/2108/PNG/512/bitbucket_icon_130979.png',
+          ts: Math.floor(new Date().getTime() / 1000),
+        },
+      ],
+    };
+
+    return this.slackWebhookService.sendMessage(slackMessage);
   }
 
   /**
@@ -270,54 +344,7 @@ export class BitbucketHookService {
     const re = /(\b[A-Z][A-Z0-9_]+-[1-9][0-9]*)/g; // https://stackoverflow.com/a/73914895
 
     const slackMessage = {
-      text: `🚀 새로운 PR이 Open 되었습니다.${isPrd ? '[PRD]' : ''} ${isQa ? '[QA]' : ''}`,
-      attachments: [
-        {
-          mrkdwn_in: ['text'],
-          color: '#4f5aec',
-          title: `Pull request <${prUrl}|#${prID}>  | (OPEN) ${isPrd ? '🚨' : ''}`,
-          // "title_link": "https://api.slack.com/",
-          pretext: `URL: ${prUrl} (${repoName} ☑️)`,
-          author_name: `by ${prUserId} / ${prAuthor}  `,
-          author_email: `${prEmail}`,
-          // "author_link": "https://bitbucket.homeplusnet.co.kr/",
-          author_icon:
-            'https://cdn1.iconfinder.com/data/icons/logos-1/24/developer-community-github-1024.png',
-          fields: [
-            {
-              value: `\`${prFromBr}\`  →  \`${prToBr}\``,
-              type: 'mrkdwn',
-              short: false,
-            },
-            {
-              value: ``,
-              short: false,
-            },
-            {
-              value: `${prTitle.replaceAll(re, `<${base}/$1|$1>`)} `,
-              short: false,
-            },
-            {
-              title: 'Description',
-              value: `${prDescription || ''}`,
-              short: false,
-            },
-            {
-              title: 'Reviewers',
-              // "value": `<!here> ➡  <@${prUserId}> ${reviewerNameList.join(',')}`,
-              value: `<@${prUserId}> 👋  ${reviewerNameList?.join(',')}`,
-              type: 'code',
-              short: false,
-            },
-          ],
-          thumb_url:
-            'https://cdn.icon-icons.com/icons2/2108/PNG/512/bitbucket_icon_130979.png',
-          footer: 'bitbucket',
-          footer_icon:
-            'https://cdn.icon-icons.com/icons2/2108/PNG/512/bitbucket_icon_130979.png',
-          ts: Math.floor(new Date().getTime() / 1000),
-        },
-      ],
+      text: '❌ PR이 거부되었습니다.',
     };
 
     return this.slackWebhookService.sendMessage(slackMessage);
