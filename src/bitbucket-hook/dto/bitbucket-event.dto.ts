@@ -24,11 +24,19 @@ export interface PullRequestEvent extends BitbucketBaseEvent {
     state: string;
     createdDate: string;
     updatedDate: string;
+    links: {
+      self: Array<{
+        href: string;
+      }>;
+    };
     fromRef: {
       displayId: string;
     };
     toRef: {
       displayId: string;
+      repository: {
+        name: string;
+      };
     };
     author: {
       user: {
